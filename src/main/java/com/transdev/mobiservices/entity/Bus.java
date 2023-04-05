@@ -1,18 +1,18 @@
 package com.transdev.mobiservices.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @NoArgsConstructor
 @ToString
+@Entity
 public class Bus {
 
     @Id
@@ -23,7 +23,8 @@ public class Bus {
 
     private int seats;
 
-    private LocalDateTime departureTime;
+    @Column(name="departure_time")
+    private LocalTime departureTime;
 
     private BigDecimal price;
 }

@@ -42,7 +42,7 @@ public class ReservationController {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation with id "+reservationId+" not found"));
 
-        reservation.setDate(reservationDetails.getDate());
+        reservation.setReservationDate(reservationDetails.getReservationDate());
         reservation.setBus(reservationDetails.getBus());
         reservation.setClient(reservationDetails.getClient());
 

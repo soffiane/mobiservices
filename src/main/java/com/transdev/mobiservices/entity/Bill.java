@@ -9,6 +9,7 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @ToString
+@Entity
 public class Bill {
 
     @Id

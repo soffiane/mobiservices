@@ -10,12 +10,13 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @ToString
+@Entity
 public class Reservation {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        private LocalDate date;
+        private LocalDate reservationDate;
 
         //Une reservation peut comporter plusieurs trajets
         @ManyToOne

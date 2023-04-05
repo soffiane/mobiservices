@@ -32,6 +32,6 @@ public class BillController {
 
     @GetMapping("/sorted")
     public List<Bill> getSortedBills() {
-        return billRepository.findAllByOrderByReservationDateDesc();
+        return billRepository.findAllByOrderByReservationReservationDateDesc();
     }
 }

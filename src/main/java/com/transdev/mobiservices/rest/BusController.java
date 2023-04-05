@@ -2,6 +2,7 @@ package com.transdev.mobiservices.rest;
 
 import com.transdev.mobiservices.dao.BusRepository;
 import com.transdev.mobiservices.entity.Bus;
+import com.transdev.mobiservices.exception.BusNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,12 +39,8 @@ public class BusController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBus(@PathVariable Long id) {
-        Optional<Bus> bus = busRepository.findById(id);
-        if (bus.isPresent()) {
-            busRepository.delete(bus.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Bus bus = busRepository.findById(id).orElseThrow(() -> new BusNotFoundException(id));
+        busRepository.delete(bus);
+        return ResponseEntity.noContent().build();
     }
 }
