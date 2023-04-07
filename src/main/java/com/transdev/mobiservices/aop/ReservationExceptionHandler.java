@@ -1,8 +1,7 @@
 package com.transdev.mobiservices.aop;
 
-import com.transdev.mobiservices.exception.BusNotFoundException;
 import com.transdev.mobiservices.exception.ReservationErrorResponse;
-import com.transdev.mobiservices.exception.ReservationNotFoundException;
+import com.transdev.mobiservices.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,10 +15,10 @@ import java.time.LocalDateTime;
 public class ReservationExceptionHandler {
 
     @ResponseBody
-    @ExceptionHandler({BusNotFoundException.class,ReservationNotFoundException.class})
+    @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ReservationErrorResponse> handleException(ReservationNotFoundException exc){
-        ReservationErrorResponse reservationErrorResponse = new ReservationErrorResponse(HttpStatus.NOT_FOUND,exc.getMessage(), LocalDateTime.now());
+    public ResponseEntity<ReservationErrorResponse> handleException(ResourceNotFoundException exc) {
+        ReservationErrorResponse reservationErrorResponse = new ReservationErrorResponse(HttpStatus.NOT_FOUND, exc.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(reservationErrorResponse, HttpStatus.NOT_FOUND);
     }
 }

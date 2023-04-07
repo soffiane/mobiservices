@@ -40,3 +40,11 @@ CREATE TABLE bill (
   PRIMARY KEY (id),
   FOREIGN KEY (reservation_id) REFERENCES reservation(id)
 );
+
+INSERT INTO Client VALUES
+('1','Soffiane','soffiane.boudissa@gmail.com');
+
+INSERT INTO Bus VALUES
+('1','Saint-Léger - Coulommiers',5,'10:00:00',4.0),
+('2','Creteil - Servon',8,'09:30:00',6.5),
+('3','Villeneuve-Saint-Georges',14,'14:15:00',7.0);
