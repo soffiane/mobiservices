@@ -2,11 +2,12 @@ package com.transdev.mobiservices.rest;
 
 import com.transdev.mobiservices.dao.BusRepository;
 import com.transdev.mobiservices.entity.Bus;
-import com.transdev.mobiservices.exception.BusNotFoundException;
+import com.transdev.mobiservices.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Optional;
 
 @RestController
@@ -33,13 +34,13 @@ public class BusController {
     }
 
     @PostMapping
-    public Bus createBus(@RequestBody Bus bus) {
-        return busRepository.save(bus);
+    public ResponseEntity<Bus> createBus(@RequestBody Bus bus) {
+        return ResponseEntity.created(URI.create("/buses/" + bus.getId())).body(busRepository.save(bus));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBus(@PathVariable Long id) {
-        Bus bus = busRepository.findById(id).orElseThrow(() -> new BusNotFoundException(id));
+        Bus bus = busRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Could not find bus with id :"+id));
         busRepository.delete(bus);
         return ResponseEntity.noContent().build();
     }

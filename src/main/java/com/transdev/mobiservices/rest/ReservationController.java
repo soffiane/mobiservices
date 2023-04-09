@@ -1,64 +1,51 @@
 package com.transdev.mobiservices.rest;
 
-import com.transdev.mobiservices.dao.ReservationRepository;
 import com.transdev.mobiservices.entity.Reservation;
-import com.transdev.mobiservices.exception.ReservationNotFoundException;
+import com.transdev.mobiservices.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/reservations")
 public class ReservationController {
 
-    private final ReservationRepository reservationRepository;
+    private final ReservationService reservationService;
 
     @Autowired
-    public ReservationController(ReservationRepository reservationRepository) {
-        this.reservationRepository = reservationRepository;
+    public ReservationController(ReservationService reservationService) {
+        this.reservationService = reservationService;
     }
 
     @GetMapping
     public Iterable<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+        return reservationService.getAllReservations();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
-        Optional<Reservation> reservation = reservationRepository.findById(id);
-        return reservation.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(reservationService.findById(id));
     }
+
 
     @PostMapping
-    public Reservation createReservation(@RequestBody Reservation reservation) {
-        return reservationRepository.save(reservation);
+    public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
+        return ResponseEntity.created(URI.create("/reservations/" + reservation.getId())).body(reservationService.createReservation(reservation));
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Reservation> updateReservation(@PathVariable(value = "id") Long reservationId,
-                                                         @RequestBody Reservation reservationDetails) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ReservationNotFoundException("Reservation with id "+reservationId+" not found"));
-
-        reservation.setReservationDate(reservationDetails.getReservationDate());
-        reservation.setBus(reservationDetails.getBus());
-        reservation.setClient(reservationDetails.getClient());
-
-        Reservation updatedReservation = reservationRepository.save(reservation);
-        return ResponseEntity.ok(updatedReservation);
+    public ResponseEntity<Reservation> updateReservation(@RequestBody Reservation reservation, @PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.updateReservation(reservation, id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
-        Optional<Reservation> reservation = reservationRepository.findById(id);
-        if (reservation.isPresent()) {
-            reservationRepository.delete(reservation.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        reservationService.deleteReservation(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

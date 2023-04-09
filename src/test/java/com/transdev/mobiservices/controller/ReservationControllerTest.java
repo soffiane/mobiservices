@@ -1,0 +1,150 @@
+package com.transdev.mobiservices.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.transdev.mobiservices.dao.BusRepository;
+import com.transdev.mobiservices.dao.ClientRepository;
+import com.transdev.mobiservices.entity.Bus;
+import com.transdev.mobiservices.entity.Client;
+import com.transdev.mobiservices.entity.Reservation;
+import com.transdev.mobiservices.exception.ResourceNotFoundException;
+import com.transdev.mobiservices.service.ReservationService;
+import org.junit.Before;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class ReservationControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private ReservationService reservationService;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private BusRepository busRepository;
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Before
+    public void setUp() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
+    }
+
+    @Test
+    @Order(1)
+    public void shouldReturnEmptyList() throws Exception {
+        mockMvc.perform(get("/reservations"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
+    @Order(2)
+    public void shouldCreateReservation() throws Exception {
+        Optional<Client> client = clientRepository.findById(1L);
+        Optional<Bus> bus = busRepository.findById(1L);
+
+        Reservation reservation = new Reservation();
+        reservation.setReservationDate(LocalDate.now());
+        reservation.setClient(client.get());
+        reservation.addBus(bus.get());
+
+        mockMvc.perform(post("/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservation)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.reservationDate").value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$.buses[0].id").value(1l))
+                .andExpect(jsonPath("$.buses[0].route").value("Saint-Léger - Coulommiers"))
+                .andExpect(jsonPath("$.buses[0].seats").value(5))
+                .andExpect(jsonPath("$.buses[0].departureTime").value("10:00"))
+                .andExpect(jsonPath("$.buses[0].price").value(4.0))
+                .andExpect(jsonPath("$.client.id").value(1l))
+                .andExpect(jsonPath("$.client.name").value("Soffiane Boudissa"))
+                .andExpect(jsonPath("$.client.email").value("soffiane.boudissa@gmail.com"));
+    }
+
+    @Test
+    @Order(3)
+    public void shouldUpdateReservation() throws Exception {
+        Reservation reservation = reservationService.findById(1L);
+        Optional<Bus> bus = busRepository.findById(2L);
+
+        reservation.addBus(bus.get());
+
+        mockMvc.perform(put("/reservations/" + reservation.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservation)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(reservation.getId()))
+                .andExpect(jsonPath("$.reservationDate").value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$.buses[0].id").value(1l))
+                .andExpect(jsonPath("$.buses[0].route").value("Saint-Léger - Coulommiers"))
+                .andExpect(jsonPath("$.buses[0].seats").value(5))
+                .andExpect(jsonPath("$.buses[0].departureTime").value("10:00"))
+                .andExpect(jsonPath("$.buses[0].price").value(4.0))
+
+                .andExpect(jsonPath("$.buses[1].id").value(2l))
+                .andExpect(jsonPath("$.buses[1].route").value("Creteil - Servon"))
+                .andExpect(jsonPath("$.buses[1].seats").value(8))
+                .andExpect(jsonPath("$.buses[1].departureTime").value("09:30"))
+                .andExpect(jsonPath("$.buses[1].price").value(6.5))
+
+                .andExpect(jsonPath("$.client.id").value(1l))
+                .andExpect(jsonPath("$.client.name").value("Soffiane Boudissa"))
+                .andExpect(jsonPath("$.client.email").value("soffiane.boudissa@gmail.com"));
+    }
+
+    @Test()
+    @Order(4)
+    public void shouldDeleteReservation() throws Exception {
+        Reservation reservation = reservationService.findById(1L);
+
+        mockMvc.perform(delete("/reservations/{id}", reservation.getId()))
+                .andExpect(status().isNoContent());
+
+        assertThrows(ResourceNotFoundException.class, () -> reservationService.findById(reservation.getId()));
+    }
+
+    @Test
+    @Order(5)
+    public void shouldThrowExceptionWhenReservationNotFound() throws Exception {
+        mockMvc.perform(get("/reservations/"+5)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
+                .andExpect(result -> assertEquals("Could not found reservation with id 5", result.getResolvedException().getMessage()));
+    }
+}
