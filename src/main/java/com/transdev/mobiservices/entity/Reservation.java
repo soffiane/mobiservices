@@ -1,37 +1,44 @@
 package com.transdev.mobiservices.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 @Entity
 public class Reservation {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        @Column(nullable = false)
-        private LocalDate reservationDate;
+    @Column(name = "reservation_date")
+    private LocalDate reservationDate;
 
-        @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-        @JoinTable(name = "reservation_bus",
-                joinColumns = @JoinColumn(name = "reservation_id"),
-                inverseJoinColumns = @JoinColumn(name = "bus_id"))
-        private Set<Bus> buses = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "bus_reservation",
+            joinColumns = @JoinColumn(name = "reservation_id"),
+            inverseJoinColumns = @JoinColumn(name = "bus_id")
+    )
+    private Set<Bus> buses;
 
-        @ManyToOne
-        @JoinColumn(name = "client_id")
-        private Client client;
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client client;
 
+    public void addBus(Bus bus) {
+        if (buses == null) {
+            buses = new HashSet<>();
+        }
+        buses.add(bus);
+    }
 }

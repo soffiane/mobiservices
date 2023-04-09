@@ -17,8 +17,8 @@ public class ReservationExceptionHandler {
     @ResponseBody
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ReservationErrorResponse> handleException(ResourceNotFoundException exc) {
-        ReservationErrorResponse reservationErrorResponse = new ReservationErrorResponse(HttpStatus.NOT_FOUND, exc.getMessage(), LocalDateTime.now());
+    public ResponseEntity<ReservationErrorResponse> handleException(ResourceNotFoundException exc){
+        ReservationErrorResponse reservationErrorResponse = new ReservationErrorResponse(HttpStatus.NOT_FOUND,exc.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(reservationErrorResponse, HttpStatus.NOT_FOUND);
     }
 }

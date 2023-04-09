@@ -22,9 +22,9 @@ DROP TABLE IF EXISTS reservation;
 
 CREATE TABLE reservation (
   id int NOT NULL AUTO_INCREMENT,
-  reservationDate DATE,
-  bus_id int NOT NULL,
-  client_id int NOT NULL,
+  reservation_date DATE,
+  bus_id int,
+  client_id int,
   seats int DEFAULT 0,
   PRIMARY KEY (id),
   FOREIGN KEY (bus_id) REFERENCES bus(id),
@@ -42,9 +42,9 @@ CREATE TABLE bill (
 );
 
 INSERT INTO Client VALUES
-('1','Soffiane','soffiane.boudissa@gmail.com');
+('1','Soffiane Boudissa','soffiane.boudissa@gmail.com');
 
 INSERT INTO Bus VALUES
-('1','Saint-Léger - Coulommiers',5,'10:00:00',4.0),
-('2','Creteil - Servon',8,'09:30:00',6.5),
-('3','Villeneuve-Saint-Georges',14,'14:15:00',7.0);
+('1','Saint-Léger - Coulommiers',5,'10:00',4.0),
+('2','Creteil - Servon',8,'09:30',6.5),
+('3','Villeneuve-Saint-Georges',14,'14:15',7.0);
