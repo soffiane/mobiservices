@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -74,13 +75,6 @@ public class BillControllerTest {
 
         Reservation createdReservation = reservationService.createReservation(reservation);
 
-        JSONObject expectedBus = new JSONObject();
-        expectedBus.put("id", 1);
-        expectedBus.put("route", "Saint-Léger - Coulommiers");
-        expectedBus.put("seats", 5);
-        expectedBus.put("departureTime", "10:00");
-        expectedBus.put("price", 4.0);
-
         mockMvc.perform(post("/bills/pay/"+createdReservation.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bill)))
@@ -88,10 +82,10 @@ public class BillControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.reservation.id").value(1))
-                .andExpect(jsonPath("$.reservation.reservationDate").value("2023-04-09"))
+                .andExpect(jsonPath("$.reservation.reservationDate").value(LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))))
                 .andExpect(jsonPath("$.reservation.buses[0].id").value(1))
                 .andExpect(jsonPath("$.reservation.buses[0].route").value("Saint-Léger - Coulommiers"))
-                .andExpect(jsonPath("$.reservation.buses[0].seats").value(5))
+                .andExpect(jsonPath("$.reservation.buses[0].seats").value(4))
                 .andExpect(jsonPath("$.reservation.buses[0].departureTime").value("10:00"))
                 .andExpect(jsonPath("$.reservation.buses[0].price").value(4.0))
                 .andExpect(jsonPath("$.reservation.client.id").value(1))
@@ -100,6 +94,51 @@ public class BillControllerTest {
                 .andExpect(jsonPath("$.paymentType").value(PaymentType.PAYPAL.toString()))
                 .andExpect(jsonPath("$.paymentInformations").value("soffiane.boudissa@gmail.com"))
                 .andExpect(jsonPath("$.totalPrice").value(4.0));
+
+    }
+
+    @Test
+    @Order(2)
+    public void shouldCalculateTotalReservationPriceWithDiscount() throws Exception {
+        Reservation reservation = new Reservation();
+        reservation.setReservationDate(LocalDate.now());
+        Client client = clientRepository.findById(1L).get();
+        reservation.setClient(client);
+        reservation.addBus(busRepository.findById(1L).get());
+        reservation.addBus(busRepository.findById(5L).get());
+
+        Bill bill = new Bill();
+        bill.setPaymentType(PaymentType.PAYPAL);
+        bill.setPaymentInformations("soffiane.boudissa@gmail.com");
+
+        Reservation createdReservation = reservationService.createReservation(reservation);
+
+        mockMvc.perform(post("/bills/pay/"+createdReservation.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(bill)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.reservation.id").value(2))
+                .andExpect(jsonPath("$.reservation.reservationDate").value(LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))))
+                .andExpect(jsonPath("$.reservation.buses[0].id").value(1))
+                .andExpect(jsonPath("$.reservation.buses[0].route").value("Saint-Léger - Coulommiers"))
+                .andExpect(jsonPath("$.reservation.buses[0].seats").value(3))
+                .andExpect(jsonPath("$.reservation.buses[0].departureTime").value("10:00"))
+                .andExpect(jsonPath("$.reservation.buses[0].price").value(4.0))
+
+                .andExpect(jsonPath("$.reservation.buses[1].id").value(5))
+                .andExpect(jsonPath("$.reservation.buses[1].route").value("Villecrenes"))
+                .andExpect(jsonPath("$.reservation.buses[1].seats").value(1))
+                .andExpect(jsonPath("$.reservation.buses[1].departureTime").value("12:00"))
+                .andExpect(jsonPath("$.reservation.buses[1].price").value(99.0))
+
+                .andExpect(jsonPath("$.reservation.client.id").value(1))
+                .andExpect(jsonPath("$.reservation.client.name").value("Soffiane Boudissa"))
+                .andExpect(jsonPath("$.reservation.client.email").value("soffiane.boudissa@gmail.com"))
+                .andExpect(jsonPath("$.paymentType").value(PaymentType.PAYPAL.toString()))
+                .andExpect(jsonPath("$.paymentInformations").value("soffiane.boudissa@gmail.com"))
+                .andExpect(jsonPath("$.totalPrice").value(97.85));
 
     }
 }

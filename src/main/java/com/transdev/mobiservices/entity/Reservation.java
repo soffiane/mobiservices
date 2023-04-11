@@ -39,6 +39,9 @@ public class Reservation {
         if (buses == null) {
             buses = new HashSet<>();
         }
+        if(buses.contains(bus)){
+            buses.remove(bus);
+        }
         buses.add(bus);
     }
 }

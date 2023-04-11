@@ -4,9 +4,9 @@ import com.transdev.mobiservices.dao.BillRepository;
 import com.transdev.mobiservices.dao.ReservationRepository;
 import com.transdev.mobiservices.entity.Bill;
 import com.transdev.mobiservices.entity.Reservation;
-import com.transdev.mobiservices.exception.ResourceNotFoundException;
 import com.transdev.mobiservices.service.BillService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

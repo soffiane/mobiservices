@@ -2,8 +2,8 @@ package com.transdev.mobiservices.rest;
 
 import com.transdev.mobiservices.dao.BusRepository;
 import com.transdev.mobiservices.entity.Bus;
-import com.transdev.mobiservices.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

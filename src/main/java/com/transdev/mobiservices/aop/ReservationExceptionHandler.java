@@ -1,7 +1,8 @@
 package com.transdev.mobiservices.aop;
 
+import com.transdev.mobiservices.exception.InsufficentSeatsException;
 import com.transdev.mobiservices.exception.ReservationErrorResponse;
-import com.transdev.mobiservices.exception.ResourceNotFoundException;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,5 +21,13 @@ public class ReservationExceptionHandler {
     public ResponseEntity<ReservationErrorResponse> handleException(ResourceNotFoundException exc){
         ReservationErrorResponse reservationErrorResponse = new ReservationErrorResponse(HttpStatus.NOT_FOUND,exc.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(reservationErrorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(InsufficentSeatsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ReservationErrorResponse> handleException(InsufficentSeatsException exc){
+        ReservationErrorResponse reservationErrorResponse = new ReservationErrorResponse(HttpStatus.BAD_REQUEST,exc.getMessage(), LocalDateTime.now());
+        return new ResponseEntity<>(reservationErrorResponse, HttpStatus.BAD_REQUEST);
     }
 }
