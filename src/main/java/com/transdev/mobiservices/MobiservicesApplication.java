@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MobiservicesApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MobiservicesApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MobiservicesApplication.class, args);
+    }
 
 }

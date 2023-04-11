@@ -30,7 +30,7 @@ public class BillController {
     public ResponseEntity<Bill> payReservation(@PathVariable Long reservationId, @RequestBody Bill bill) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + reservationId + " not found"));
-        return ResponseEntity.created(URI.create("/bills/" + bill.getId())).body(billService.payReservation(reservation,bill));
+        return ResponseEntity.created(URI.create("/bills/" + bill.getId())).body(billService.payReservation(reservation, bill));
     }
 
     @GetMapping("/sorted")

@@ -2,8 +2,6 @@ package com.transdev.mobiservices.service;
 
 import com.transdev.mobiservices.entity.Reservation;
 
-import java.util.List;
-
 public interface ReservationService {
     Iterable<Reservation> getAllReservations();
 

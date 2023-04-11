@@ -18,12 +18,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.Assert.assertThrows;
@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext
 public class ReservationControllerTest {
 
     @Autowired
@@ -105,17 +106,6 @@ public class ReservationControllerTest {
         Bus storedBus = bus.get();
         reservation.addBus(storedBus);
 
-        Optional<Bus> firstBus = busRepository.findById(1L);
-        if (firstBus.isPresent()) {
-            Bus firstStoredBus = firstBus.get();
-            firstStoredBus.setSeats(firstStoredBus.getSeats() + 1);
-            busRepository.save(firstStoredBus);
-            reservation.getBuses().stream()
-                    .filter(bus1 -> Objects.equals(bus1.getId(), firstStoredBus.getId()))
-                    .findFirst()
-                    .ifPresent(bus1 -> bus1.setSeats(firstStoredBus.getSeats()));
-        }
-
         mockMvc.perform(put("/reservations/" + reservation.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservation)))
@@ -124,17 +114,17 @@ public class ReservationControllerTest {
                 .andExpect(jsonPath("$.id").value(reservation.getId()))
                 .andExpect(jsonPath("$.reservationDate").value(LocalDate.now().toString()))
 
-                .andExpect(jsonPath("$.buses[0].id").value(1l))
-                .andExpect(jsonPath("$.buses[0].route").value("Saint-Léger - Coulommiers"))
-                .andExpect(jsonPath("$.buses[0].seats").value(5))
-                .andExpect(jsonPath("$.buses[0].departureTime").value("10:00"))
-                .andExpect(jsonPath("$.buses[0].price").value(4.0))
+                .andExpect(jsonPath("$.buses[0].id").value(2l))
+                .andExpect(jsonPath("$.buses[0].route").value("Creteil - Servon"))
+                .andExpect(jsonPath("$.buses[0].seats").value(7))
+                .andExpect(jsonPath("$.buses[0].departureTime").value("09:30"))
+                .andExpect(jsonPath("$.buses[0].price").value(6.5))
 
-                .andExpect(jsonPath("$.buses[1].id").value(2l))
-                .andExpect(jsonPath("$.buses[1].route").value("Creteil - Servon"))
-                .andExpect(jsonPath("$.buses[1].seats").value(7))
-                .andExpect(jsonPath("$.buses[1].departureTime").value("09:30"))
-                .andExpect(jsonPath("$.buses[1].price").value(6.5))
+                .andExpect(jsonPath("$.buses[1].id").value(1l))
+                .andExpect(jsonPath("$.buses[1].route").value("Saint-Léger - Coulommiers"))
+                .andExpect(jsonPath("$.buses[1].seats").value(5))
+                .andExpect(jsonPath("$.buses[1].departureTime").value("10:00"))
+                .andExpect(jsonPath("$.buses[1].price").value(4.0))
 
                 .andExpect(jsonPath("$.client.id").value(1l))
                 .andExpect(jsonPath("$.client.name").value("Soffiane Boudissa"))
@@ -143,7 +133,7 @@ public class ReservationControllerTest {
 
     @Test
     @Order(4)
-    public void shouldThrowException() throws Exception {
+    public void shouldThrowExceptionWhenNoSeatAvailable() throws Exception {
         Optional<Client> client = clientRepository.findById(1L);
         Optional<Client> otherClient = clientRepository.findById(2L);
         Optional<Bus> bus = busRepository.findById(4L);
@@ -183,7 +173,7 @@ public class ReservationControllerTest {
     @Test
     @Order(6)
     public void shouldThrowExceptionWhenReservationNotFound() throws Exception {
-        mockMvc.perform(get("/reservations/"+5)
+        mockMvc.perform(get("/reservations/" + 5)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))

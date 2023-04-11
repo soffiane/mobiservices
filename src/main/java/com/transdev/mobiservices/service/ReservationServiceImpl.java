@@ -10,7 +10,10 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -61,7 +64,6 @@ public class ReservationServiceImpl implements ReservationService {
     public Reservation updateReservation(Reservation reservation, Long reservationId) {
         //recuperer la reservation existante et la comparer avec celle passée en parametre
         Reservation existingReservation = reservationRepository.findById(reservationId).orElseThrow(() -> new ResourceNotFoundException("Could not find existing reservation with id :" + reservationId));
-        //comment faire une diff entre existing et reservation ?????
 
         Set<Bus> originalBuses = new HashSet<>(existingReservation.getBuses());
         Set<Bus> newBuses = new HashSet<>(reservation.getBuses());
@@ -84,10 +86,10 @@ public class ReservationServiceImpl implements ReservationService {
                 Bus originalBus = optionalOriginalBus.get();
                 if (!originalBus.equals(newBus)) {
                     updatedBuses.add(newBus);
-                    if(newBus.getSeats() < originalBus.getSeats()){
-                        updateSeats(updatedBuses,-1);
+                    if (newBus.getSeats() < originalBus.getSeats()) {
+                        updateSeats(updatedBuses, -1);
                     } else {
-                        updateSeats(updatedBuses,1);
+                        updateSeats(updatedBuses, 1);
                     }
                 }
             }
@@ -95,8 +97,6 @@ public class ReservationServiceImpl implements ReservationService {
 
         existingReservation.getBuses().addAll(updateSeats(addedBuses, -1));
         existingReservation.getBuses().addAll(updateSeats(removedBuses, 1));
-
-        //existingReservation.getBuses().addAll(reservation.getBuses());
         existingReservation.setClient(reservation.getClient());
         existingReservation.setReservationDate(reservation.getReservationDate());
         return reservationRepository.save(existingReservation);

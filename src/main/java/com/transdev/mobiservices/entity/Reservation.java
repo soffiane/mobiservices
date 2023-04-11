@@ -1,19 +1,19 @@
 package com.transdev.mobiservices.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Entity
 public class Reservation {
     @Id
@@ -23,7 +23,7 @@ public class Reservation {
     @Column(name = "reservation_date")
     private LocalDate reservationDate;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST})
     @JoinTable(
             name = "bus_reservation",
             joinColumns = @JoinColumn(name = "reservation_id"),
@@ -38,9 +38,6 @@ public class Reservation {
     public void addBus(Bus bus) {
         if (buses == null) {
             buses = new HashSet<>();
-        }
-        if(buses.contains(bus)){
-            buses.remove(bus);
         }
         buses.add(bus);
     }

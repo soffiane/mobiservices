@@ -40,7 +40,7 @@ public class BusController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBus(@PathVariable Long id) {
-        Bus bus = busRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Could not find bus with id :"+id));
+        Bus bus = busRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Could not find bus with id :" + id));
         busRepository.delete(bus);
         return ResponseEntity.noContent().build();
     }

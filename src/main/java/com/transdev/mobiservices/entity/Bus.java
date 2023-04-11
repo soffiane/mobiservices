@@ -1,19 +1,21 @@
 package com.transdev.mobiservices.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalTime;
-import java.util.Objects;
 import java.util.Set;
 
-@Data
-@ToString
-@Entity
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@Entity
 public class Bus {
 
     @Id
@@ -22,10 +24,14 @@ public class Bus {
 
     private String route;
 
+    @ManyToMany(mappedBy = "buses")
+    @JsonIgnore
+    private Set<Reservation> reservations;
+
     private int seats;
 
     @Column(name = "departure_time")
-    @JsonFormat(pattern="HH:mm")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime departureTime;
 
     private double price;

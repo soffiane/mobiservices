@@ -4,7 +4,6 @@ import com.transdev.mobiservices.dao.BillRepository;
 import com.transdev.mobiservices.entity.Bill;
 import com.transdev.mobiservices.entity.Bus;
 import com.transdev.mobiservices.entity.Reservation;
-import com.transdev.mobiservices.entity.enums.PaymentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +29,7 @@ public class BillServiceImpl implements BillService {
         bill.setReservation(reservation);
         return billRepository.save(bill);
     }
+
     public List<Bill> getSortedBills() {
         return billRepository.findAllByOrderByReservationReservationDateDesc();
     }
